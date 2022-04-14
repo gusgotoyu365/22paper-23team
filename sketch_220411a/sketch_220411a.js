@@ -14,23 +14,26 @@ let h = 1000;
 const SB = -70; //Sea bottom
 
 let sb_speed = 0;
+let sea_speed = 0.01;
 
 let terrain = [];
+let sea_terrain = [];
 
 function setup() {
   createCanvas(540, 960, WEBGL);
-  //cols = w / scl;
-  //rows = h / scl;
   cols = 20;
   rows = 20;
   
   for (let x = 0; x < cols; x++) {
     terrain[x] = [];
+    sea_terrain[x] = [];
     for (let y = 0; y < rows; y++) {
       terrain[x][y] = 0; //specify a default value for now
+      sea_terrain[x][y] = 0;
     }
   }
   
+  //카메라 시점용 slider
   for (let i = 0; i < 6; i++) {
     if (i === 2) {
       sliderGroup[i] = createSlider(-1000, 1000, 200);
@@ -45,17 +48,18 @@ function setup() {
 
 function draw() {
   rotateX(PI/2);
+  background(255);
   //땅  
-  let yoff = sb_speed;
-  
-  sb_display(yoff);
-  
+  let theta = 0.02;
+  sea_speed += 0.005;
+  sb_display(sb_speed);
+  sea_display(sea_speed,theta);
   slider();
   
   //camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
   //print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
-  camera(1000, -187, 656, -94, -125, 0);
-  //camera(-625, 813, 1000, 281, -406, 125);
+  camera(1000, -781, 969, 0, 100, 0);
+  //camera(625, 813, 1000, 281, -406, 125);
 }
 
 function slider() {
@@ -71,14 +75,13 @@ function sb_display(yoff) {
   for (let y = 0; y < rows; y++) {
     let xoff = 0;
     for (let x = 0; x < cols; x++) {
-      terrain[x][y] = map(noise(xoff, yoff), 0, 1, -50, 50);
+      terrain[x][y] = map(noise(xoff, yoff), 0, 1, 0, 100);
       xoff += 0.2;
     }
     yoff += 0.2;
   }
   
   push();
-  background(0);
   normalMaterial();
   fill(242,245,169);
   for (let y = 0; y < rows - 1; y++) {
@@ -125,6 +128,54 @@ function sb_display(yoff) {
   pop();
 }
 
-function sea_display() {
+function sea_display(yoff,theta) {
+  for (let y = 0; y < rows; y++) {
+    let xoff = 100;
+    let i = theta;
+    for (let x = 0; x < cols; x++) {
+      sea_terrain[x][y] = map((sin(theta)+(noise(xoff, yoff))+1), 0, 2, 250, 350);
+      xoff += 0.1;
+      i += (TWO_PI / 500.0);
+    }
+    yoff += 0.2;
+  }
   
+  push();
+  normalMaterial();
+  fill(101,243,253,100);
+  for (let y = 0; y < rows - 1; y++) {
+    beginShape(TRIANGLE_STRIP);
+    for (let x = 0; x < cols; x++) {
+      vertex(x * scl, y * scl, sea_terrain[x][y]);
+      vertex(x * scl, (y + 1) * scl, sea_terrain[x][y + 1]);
+    }
+    endShape();
+  }
+  
+  for (let x = 0; x < cols; x++) {
+    beginShape(TRIANGLE_STRIP);
+    for (let y = 0; y < rows - 1; y++) {
+      if (x == 0 || x == cols - 1) {
+        vertex(x * scl, y * scl, sea_terrain[x][y]);
+        vertex(x * scl, (y + 1) * scl, sea_terrain[x][y + 1]);
+        vertex(x * scl, y * scl, terrain[x][y]);
+        vertex(x * scl, (y + 1) * scl, terrain[x][y + 1]);
+      }
+    }
+    endShape();
+  }
+  
+  for (let y = 0; y < rows; y++) {
+    beginShape(TRIANGLE_STRIP);
+    for (let x = 0; x < rows - 1; x++) {
+      if (y == 0 || y == rows - 1) {
+        vertex(x * scl, y * scl, sea_terrain[x][y]);
+        vertex((x + 1) * scl, y * scl, sea_terrain[x + 1][y]);
+        vertex(x * scl, y * scl, terrain[x][y]);
+        vertex((x + 1) * scl, y * scl, terrain[x + 1][y]);
+      }
+    }
+    endShape();
+  }
+  pop();
 }
