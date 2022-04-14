@@ -14,10 +14,14 @@ let h = 1000;
 const SB = -70; //Sea bottom
 
 let sb_speed = 0;
-let sea_speed = 0.01;
+let sea_speed = 0;
 
 let terrain = [];
 let sea_terrain = [];
+
+function preload() {
+  wooden_ship = loadModel('wooden_ship.obj');
+}
 
 function setup() {
   createCanvas(540, 960, WEBGL);
@@ -55,10 +59,16 @@ function draw() {
   sb_display(sb_speed);
   sea_display(sea_speed,theta);
   slider();
+  push();
+  normalMaterial();
+  translate(0,0,350);
+  fill(204,102,0);
+  model(wooden_ship);
+  pop();
   
-  //camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
-  //print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
-  camera(1000, -781, 969, 0, 100, 0);
+  camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
+  print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
+  //camera(1000, -781, 969, 0, 100, 0);
   //camera(625, 813, 1000, 281, -406, 125);
 }
 
