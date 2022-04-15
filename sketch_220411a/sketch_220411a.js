@@ -53,7 +53,9 @@ function setup() {
     }
   }
 
-  for(i=0;i<random(7,13);i++) f[i] = new Fish();
+  for(i=0;i<10;i++) {
+    f[i] = new Fish();
+  }
   //카메라 시점용 slider
   for (let i = 0; i < 6; i++) {
     if (i === 2) {
@@ -81,9 +83,7 @@ function draw() {
     }
   }
   
-  
   white_wallR();
-  
   sb_display(sb_speed, theta);
   wb_display();
   sea_display(sea_speed, theta);
