@@ -56,7 +56,7 @@ function draw() {
   //땅  
   let theta = 0.02;
   sea_speed += 0.005;
-  sb_display(sb_speed);
+  sb_display(sb_speed,theta);
   sea_display(sea_speed,theta);
   white_wallR();
   slider();
@@ -83,12 +83,19 @@ function slider() {
   centerZ = sliderGroup[5].value();
 }
 
-function sb_display(yoff) {
+function sb_display(yoff,theta) {
   for (let y = 0; y < rows; y++) {
     let xoff = 0;
+    let i = theta;
     for (let x = 0; x < cols; x++) {
-      terrain[x][y] = map(noise(xoff, yoff), 0, 1, 0, 100);
+      let co = cos(theta);
+      if (co>=0) {
+        co = co * -1;
+      }
+      co = co + 1;
+      terrain[x][y] = map((co+noise(xoff, yoff)), 0, 2, 0, 100);
       xoff += 0.2;
+      i += TWO_PI / 500.0;
     }
     yoff += 0.2;
   }
