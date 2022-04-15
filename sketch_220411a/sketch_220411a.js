@@ -58,7 +58,9 @@ function draw() {
   sea_speed += 0.005;
   sb_display(sb_speed);
   sea_display(sea_speed,theta);
+  white_wallR();
   slider();
+  
   push();
   normalMaterial();
   translate(0,0,350);
@@ -66,9 +68,9 @@ function draw() {
   model(wooden_ship);
   pop();
   
-  camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
-  print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
-  //camera(1000, -781, 969, 0, 100, 0);
+  //camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
+  //print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
+  camera(1000, -781, 969, 0, 100, 0);
   //camera(625, 813, 1000, 281, -406, 125);
 }
 
@@ -187,5 +189,14 @@ function sea_display(yoff,theta) {
     }
     endShape();
   }
+  pop();
+}
+
+function white_wallR() {
+  push();
+  translate(150,-300,350);
+  noStroke();
+  fill(255);
+  box(600,600);
   pop();
 }
