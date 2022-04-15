@@ -82,10 +82,25 @@ function draw() {
     }
   }
   
+  push();
+  translate(0,0,-100);
   white_wallR();
   sb_display(sb_speed, theta);
   wb_display();
   sea_display(sea_speed, theta);
+  pop();
+  
+  push();
+  rotateZ(PI/4);
+  translate(0,0,1000);
+  noStroke();
+  fill(230);
+  box(800);
+  translate(0,0,-4500);
+  rotate(-PI/200);
+  rotateY(PI/10);
+  box(2300);
+  pop();
   
   canvas.getContext('webgl').disable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 먼저 생성된 개체가 가장 뒤에 위치하게 됨
   if (spawn_fish == true) {
@@ -255,7 +270,7 @@ function white_wallR() {
 class Fish {
   constructor() {
     this.x = random(100,150);
-    this.y = random(0,-150);
+    this.y = random(-130,-280);
     this.z = random(0,-100);
     this.filler = random(colorarray);
     this.speed = random(1,3);
@@ -273,9 +288,9 @@ class Fish {
 }
 
 function keyPressed() {
-  if (key == 0) {
+  if (key == 'w') {
     wb_move = true;
-  } if (key == 1) {
+  } if (key == 's') {
     spawn_fish = true;
   }
 }
