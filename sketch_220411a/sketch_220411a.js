@@ -1,4 +1,5 @@
 let sliderGroup = [];
+let f = [];
 
 let X;
 let Y;
@@ -7,6 +8,8 @@ let centerX;
 let centerY;
 let centerZ;
 let hi = 20;
+
+colorarray = ['#FF3333', '#FFFF33', '#FF8000'];
 
 let cols, rows;
 let scl = 20;
@@ -19,8 +22,12 @@ let theta = 0.02;
 let sb_speed = 0;
 let sea_speed = 0;
 let wb_loc = -170;
+let fish_move = 0;
 
 let wb_move = false;
+let spawn_fish = true;
+
+let interval_fish;
 
 let terrain = [];
 let sea_terrain = [];
@@ -29,22 +36,24 @@ function preload() {
   wooden_boat = loadModel('wooden_boat.obj');
   sit_human = loadModel('sitting_human.obj');
   rod = loadModel('fishing_rod.obj');
+  fish = loadModel('fish.obj');
 }
 
 function setup() {
   createCanvas(540, 960, WEBGL);
   cols = 20;
   rows = 20;
-  
+
   for (let x = 0; x < cols; x++) {
     terrain[x] = [];
     sea_terrain[x] = [];
     for (let y = 0; y < rows; y++) {
-      terrain[x][y] = 0; //specify a default value for now
+      terrain[x][y] = 0;
       sea_terrain[x][y] = 0;
     }
   }
-  
+
+  for(i=0;i<random(7,13);i++) f[i] = new Fish();
   //카메라 시점용 slider
   for (let i = 0; i < 6; i++) {
     if (i === 2) {
@@ -59,23 +68,35 @@ function setup() {
 }
 
 function draw() {
+  
   rotateX(PI/2);
   background(255);
-  //땅  
+  //땅
   sea_speed += 0.005;
-  sb_display(sb_speed,theta);
-  sea_display(sea_speed,theta);
-  white_wallR();
-  slider();
   
   if (wb_move == true) {
     wb_loc += 0.5;
-    if (wb_loc >= 200) {
+    if (wb_loc >= 230) {
       wb_move = false;
     }
   }
   
+  
+  white_wallR();
+  
+  sb_display(sb_speed, theta);
   wb_display();
+  sea_display(sea_speed, theta);
+  
+  canvas.getContext('webgl').disable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 먼저 생성된 개체가 가장 뒤에 위치하게 됨
+  if (spawn_fish == true) {
+    for(let i=0; i<10; i++) {
+      f[i].display();
+      fish_move+=0.001;
+    }
+  }
+  canvas.getContext('webgl').enable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 다시 보이는대로 표시 됨
+  slider();
   
   //camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
   //print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
@@ -92,7 +113,7 @@ function slider() {
   centerZ = sliderGroup[5].value();
 }
 
-function sb_display(yoff,theta) {
+function sb_display(yoff, theta) {
   for (let y = 0; y < rows; y++) {
     let xoff = 0;
     let i = theta;
@@ -108,10 +129,10 @@ function sb_display(yoff,theta) {
     }
     yoff += 0.2;
   }
-  
+
   push();
   normalMaterial();
-  fill(242,245,169);
+  fill(242, 245, 169);
   for (let y = 0; y < rows - 1; y++) {
     beginShape(TRIANGLE_STRIP);
     for (let x = 0; x < cols; x++) {
@@ -120,7 +141,7 @@ function sb_display(yoff,theta) {
     }
     endShape();
   }
-  
+
   for (let x = 0; x < cols; x++) {
     beginShape(TRIANGLE_STRIP);
     for (let y = 0; y < rows - 1; y++) {
@@ -133,7 +154,7 @@ function sb_display(yoff,theta) {
     }
     endShape();
   }
-  
+
   for (let y = 0; y < rows; y++) {
     beginShape(TRIANGLE_STRIP);
     for (let x = 0; x < rows - 1; x++) {
@@ -146,7 +167,7 @@ function sb_display(yoff,theta) {
     }
     endShape();
   }
-  
+
   beginShape();
   vertex(0, 0, SB);
   vertex(0, 19 * scl, SB);
@@ -156,7 +177,7 @@ function sb_display(yoff,theta) {
   pop();
 }
 
-function sea_display(yoff,theta) {
+function sea_display(yoff, theta) {
   for (let y = 0; y < rows; y++) {
     let xoff = 100;
     let i = theta;
@@ -167,10 +188,10 @@ function sea_display(yoff,theta) {
     }
     yoff += 0.2;
   }
-  
+
   push();
-  normalMaterial();
-  fill(101,243,253,100);
+  noStroke();
+  fill(101, 243, 253, 100);
   for (let y = 0; y < rows - 1; y++) {
     beginShape(TRIANGLE_STRIP);
     for (let x = 0; x < cols; x++) {
@@ -192,7 +213,7 @@ function sea_display(yoff,theta) {
     }
     endShape();
   }
-  
+
   for (let y = 0; y < rows; y++) {
     beginShape(TRIANGLE_STRIP);
     for (let x = 0; x < rows - 1; x++) {
@@ -213,27 +234,49 @@ function wb_display() {
   normalMaterial();
   rotateX(PI/2);
   rotateY(PI/2);
-  translate(wb_loc,351,200);
-  fill(204,102,0);
+  translate(wb_loc, 351, 250);
+  fill(204, 102, 0);
   model(wooden_boat);
   fill(127);
   model(sit_human);
-  fill(102,51,0);
+  fill(102, 51, 0);
   model(rod);
   pop();
 }
 
 function white_wallR() {
   push();
-  translate(150,-300,350);
+  translate(150, -300, 350);
   noStroke();
   fill(255);
-  box(600,600);
+  box(600, 600);
   pop();
+}
+
+class Fish {
+  constructor() {
+    this.x = random(100,150);
+    this.y = random(0,-150);
+    this.z = random(0,-100);
+    this.filler = random(colorarray);
+    this.speed = random(1,3);
+  }
+  display() {
+    push();
+    rotateX(PI/2);
+    rotateY(fish_move*this.speed);
+    translate(this.x,this.y,this.z);
+    scale(20);
+    fill(this.filler);
+    model(fish);
+    pop();
+  }
 }
 
 function keyPressed() {
   if (keyCode === UP_ARROW) {
     wb_move = true;
+  } if (keyCode === DOWN_ARROW) {
+    spawn_fish = true;
   }
 }
