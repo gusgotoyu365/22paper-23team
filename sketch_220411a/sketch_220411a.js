@@ -25,7 +25,7 @@ let wb_loc = -170;
 let fish_move = 0;
 
 let wb_move = false;
-let spawn_fish = true;
+let spawn_fish = false;
 
 let interval_fish;
 
@@ -52,8 +52,8 @@ function setup() {
       sea_terrain[x][y] = 0;
     }
   }
-
-  for(i=0;i<10;i++) {
+  
+  for (i=0;i<10;i++) {
     f[i] = new Fish();
   }
   //카메라 시점용 slider
@@ -70,11 +70,10 @@ function setup() {
 }
 
 function draw() {
-  
   rotateX(PI/2);
   background(255);
   //땅
-  sea_speed += 0.005;
+  sea_speed += 0.01;
   
   if (wb_move == true) {
     wb_loc += 0.5;
@@ -274,9 +273,9 @@ class Fish {
 }
 
 function keyPressed() {
-  if (keyCode === UP_ARROW) {
+  if (key == 0) {
     wb_move = true;
-  } if (keyCode === DOWN_ARROW) {
+  } if (key == 1) {
     spawn_fish = true;
   }
 }
