@@ -1,4 +1,5 @@
 let sliderGroup = [];
+
 let X;
 let Y;
 let Z;
@@ -74,18 +75,7 @@ function draw() {
     }
   }
   
-  push();
-  normalMaterial();
-  rotateX(PI/2);
-  rotateY(PI/2);
-  translate(wb_loc,320,200);
-  fill(204,102,0);
-  model(wooden_boat);
-  fill(127);
-  model(sit_human);
-  fill(102,51,0);
-  model(rod);
-  pop();
+  wb_display();
   
   //camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
   //print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
@@ -215,6 +205,21 @@ function sea_display(yoff,theta) {
     }
     endShape();
   }
+  pop();
+}
+
+function wb_display() {
+  push();
+  normalMaterial();
+  rotateX(PI/2);
+  rotateY(PI/2);
+  translate(wb_loc,351,200);
+  fill(204,102,0);
+  model(wooden_boat);
+  fill(127);
+  model(sit_human);
+  fill(102,51,0);
+  model(rod);
   pop();
 }
 
