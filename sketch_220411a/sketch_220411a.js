@@ -50,6 +50,7 @@ function preload() {
   rod = loadModel('obj/fishing_rod.obj');
   fish = loadModel('obj/fish.obj');
   pet = loadModel('obj/plastic_bottle.obj');
+  factory = loadModel('obj/factory.obj');
   i_fish = loadImage('image/fish_img.png');
   i_fish_h = loadImage('image/fish_hovered.png');
   i_fish_c = loadImage('image/fish_clicked.png');
@@ -91,7 +92,7 @@ function setup() {
   rotates = createSlider(-20, 20, 0);
   rotatesX = createSlider(-20, 20, 0);
   rotatesY = createSlider(-20, 20, 0);
-  rotatesZ = createSlider(-20, 20, 0);
+  rotatesZ = createSlider(-50, 20, 0);
 }
 
 function draw() {
@@ -143,13 +144,24 @@ function draw() {
   
   main_view(); //버튼을 누름에 따른 흐름
   UDrectB(); //검은색인 위와 아래의 네모 생성
+  
+  push();
+  rotate(PI/20);
+  rotateX(PI/2);
+  rotateY(PI/-15);
+  rotateZ(PI/-39);
+  fill(100);
+  scale(200);
+  model(factory);
+  pop();
+  
   canvas.getContext('webgl').enable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 다시 보이는대로 표시 됨
   slider(); //테스트용 slider
 
   //camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
   //print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
   camera(1000, -781, 969, 0, 100, 0);
-  //print("rR: "+rR+" rX: "+rX+" rY: "+rY+" rZ: "+rZ);
+  print("rR: "+rR+" rX: "+rX+" rY: "+rY+" rZ: "+rZ);
   print(mouseX + " " + mouseY + " " + timer + " rectY: "+rectY);
 }
 
