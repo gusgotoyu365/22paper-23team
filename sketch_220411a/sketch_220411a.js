@@ -11,6 +11,8 @@ let centerY;
 let centerZ;
 let hi = 20;
 
+let view = 1;
+
 let rX, rY, rZ, rR;
 let rectY = 0;
 
@@ -34,8 +36,11 @@ let spawn_fish = false;
 let rect_cover = false;
 let rect_uncover = false;
 
-let i_fish; let i_fish_h; let i_fish_c; //이미지 불러오기용
-let b_fish; let b_fish_h; let b_fish_c; //이미지 버튼용
+let i_fish;
+let i_fish_h;
+let i_fish_c; //이미지 불러오기용
+
+let timer = 0;
 
 let terrain = [];
 let sea_terrain = [];
@@ -46,6 +51,7 @@ function preload() {
   rod = loadModel('obj/fishing_rod.obj');
   fish = loadModel('obj/fish.obj');
   i_fish = loadImage('image/fish_img.png');
+  i_fish_h = loadImage('image/fish_hovered.png');
   i_fish_c = loadImage('image/fish_clicked.png');
 }
 
@@ -62,13 +68,11 @@ function setup() {
       sea_terrain[x][y] = 0;
     }
   }
-  
-  for (i=0;i<10;i++) {
+
+  for (i=0; i<10; i++) {
     f[i] = new Fish();
   }
-  
-  b_fish = new Button(i_fish);
-  
+
   //카메라 시점용 slider
   for (let i = 0; i < 6; i++) {
     if (i === 2) {
@@ -80,11 +84,11 @@ function setup() {
     sliderGroup[i].position(10, height + hi);
     sliderGroup[i].style('width', '80px');
   }
-  
-  rotates = createSlider(-20,20,0);
-  rotatesX = createSlider(-20,20,0);
-  rotatesY = createSlider(-20,20,0);
-  rotatesZ = createSlider(-20,20,0);
+
+  rotates = createSlider(-20, 20, 0);
+  rotatesX = createSlider(-20, 20, 0);
+  rotatesY = createSlider(-20, 20, 0);
+  rotatesZ = createSlider(-20, 20, 0);
 }
 
 function draw() {
@@ -92,22 +96,22 @@ function draw() {
   background(255);
   //땅
   sea_speed += 0.01;
-  
+
   if (wb_move == true) {
     wb_loc += 0.5;
     if (wb_loc >= 230) {
       wb_move = false;
     }
   }
-  
+
   push();
-  translate(0,0,-100);
+  translate(0, 0, -100);
   white_wallR();
   sb_display(sb_speed, theta);
   wb_display();
   sea_display(sea_speed, theta);
   pop();
-  
+
   if (rect_cover == true) {
     if (rectY>=350) {
       rect_cover = false;
@@ -115,7 +119,7 @@ function draw() {
       rectY += 10;
     }
   }
-  
+
   if (rect_uncover == true) {
     if (rectY<=0) {
       rect_uncover = false;
@@ -124,16 +128,16 @@ function draw() {
     }
   }
   UDrectG(); //회색인 위랑 아래의 네모
-  
+
   canvas.getContext('webgl').disable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 먼저 생성된 개체가 가장 뒤에 위치하게 됨
   if (spawn_fish == true) {
-    for(let i=0; i<10; i++) {
+    for (let i=0; i<10; i++) {
       f[i].display();
       fish_move+=0.001;
     }
   }
   UDrectB();
-  
+
   push();
   rotate(PI/4.08);
   rotateX(PI/1);
@@ -141,17 +145,31 @@ function draw() {
   rotateZ(PI/2);
   scale(1,-1);
   translate(-95,765);
-  image(i_fish,0,0);
+  if (mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925 && view == 1) {
+    image(i_fish_h,0,0);
+  } else if (view == 1) {
+    image(i_fish,0,0);
+  } else if (view == 2) {
+    image(i_fish_c,0,0);
+  } else if (view == 3) {
+    rect_cover = true;
+    spawn_fish = true;
+    timer += 1;
+    if (timer >= 300) {
+      rect_uncover = true;
+    }
+  }
   pop();
-  
+
   canvas.getContext('webgl').enable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 다시 보이는대로 표시 됨
   slider();
-  
+
   //camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
-  print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
+  //print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
   camera(1000, -781, 969, 0, 100, 0);
   //camera(625, 813, 1000, 281, -406, 125);
-  print("rR: "+rR+" rX: "+rX+" rY: "+rY+" rZ: "+rZ);
+  //print("rR: "+rR+" rX: "+rX+" rY: "+rY+" rZ: "+rZ);
+  print(mouseX + " " + mouseY + " " + timer);
 }
 
 function slider() {
@@ -254,7 +272,7 @@ function sea_display(yoff, theta) {
     }
     endShape();
   }
-  
+
   for (let x = 0; x < cols; x++) {
     beginShape(TRIANGLE_STRIP);
     for (let y = 0; y < rows - 1; y++) {
@@ -310,54 +328,54 @@ function white_wallR() {
 function UDrectG() {
   push(); //회색 네모
   rotateZ(PI/4);
-  translate(0,0,1000+rectY/3);
+  translate(0, 0, 1000+rectY/3);
   noStroke();
   fill(230);
   box(800);
-  translate(0,0,-4500+(-rectY*2));
+  translate(0, 0, -4500+(-rectY*2));
   rotate(-PI/200);
   rotateY(PI/10);
   box(2300);
   pop();
 }
-  
+
 function UDrectB() {
   push(); //위쪽 검은색
   rotate(PI/4.08);
   rotateX(PI/1); //-8, 9, 5
   rotateY(PI/-3);
-  rotateZ(PI/2); 
-  translate(-594,818-rectY,0); //약 Y가 350일때 가려짐
+  rotateZ(PI/2);
+  translate(-594, 818-rectY, 0); //약 Y가 350일때 가려짐
   noStroke();
   fill(0);
-  rect(0,0,1400,1400);
+  rect(0, 0, 1400, 1400);
   pop();
-  
+
   push(); //아래쪽 검은색
   rotate(PI/4.08);
   rotateX(PI/1); //-8, 9, 5
   rotateY(PI/-3);
-  rotateZ(PI/2); 
-  translate(-625,-1030+rectY,0); //약 Y가 350일때 가려짐
+  rotateZ(PI/2);
+  translate(-625, -1030+rectY, 0); //약 Y가 350일때 가려짐
   noStroke();
   fill(0);
-  rect(0,0,1400,-1400);
+  rect(0, 0, 1400, -1400);
   pop();
 }
 
 class Fish {
   constructor() {
-    this.x = random(100,150);
-    this.y = random(-130,-280);
-    this.z = random(0,-100);
+    this.x = random(100, 150);
+    this.y = random(-130, -280);
+    this.z = random(0, -100);
     this.filler = random(colorarray);
-    this.speed = random(1,3);
+    this.speed = random(1, 3);
   }
   display() {
     push();
     rotateX(PI/2);
     rotateY(fish_move*this.speed);
-    translate(this.x,this.y,this.z);
+    translate(this.x, this.y, this.z);
     scale(20);
     fill(this.filler);
     model(fish);
@@ -365,45 +383,29 @@ class Fish {
   }
 }
 
-class Button {
-  constructor(X, Y, Img) {
-    this.x = X;
-    this.y = Y;
-    this.img = Img;
-  }
-  
-  display() {
-    stroke(0);
-    
-    // tint the image on mouse hover
-    if (this.over()) {
-      tint(204, 0, 128);
-    } else {
-      noTint();
-    }
-    
-    //image(this.img, this.x, this.y);
-  }
-  
-  // over automatically matches the width & height of the image read from the file
-  // see this.img.width and this.img.height below
-  over() {
-    if (mouseX > this.x && mouseX < this.x + this.img.width && mouseY > this.y && mouseY < this.y + this.img.height) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-}
-
 function keyPressed() {
   if (key == 'w') {
     wb_move = true;
-  } if (key == 's') {
+  }
+  if (key == 's') {
     spawn_fish = true;
-  } if (key == 'a') {
+  }
+  if (key == 'a') {
     rect_cover = true;
-  } if (key == 'd') {
+  }
+  if (key == 'd') {
     rect_uncover = true;
+  }
+}
+
+function mousePressed() {
+  if (view == 1 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
+    view = 2;
+  }
+}
+
+function mouseReleased() {
+  if (view == 2 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
+    view = 3;
   }
 }
