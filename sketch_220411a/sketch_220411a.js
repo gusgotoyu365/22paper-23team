@@ -49,6 +49,7 @@ function preload() {
   sit_human = loadModel('obj/sitting_human.obj');
   rod = loadModel('obj/fishing_rod.obj');
   fish = loadModel('obj/fish.obj');
+  pet = loadModel('obj/plastic_bottle.obj');
   i_fish = loadImage('image/fish_img.png');
   i_fish_h = loadImage('image/fish_hovered.png');
   i_fish_c = loadImage('image/fish_clicked.png');
@@ -76,7 +77,7 @@ function setup() {
   }
 
   //카메라 시점용 slider
-  /*for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < 6; i++) {
     if (i === 2) {
       sliderGroup[i] = createSlider(-1000, 1000, 0);
     } else {
@@ -90,7 +91,7 @@ function setup() {
   rotates = createSlider(-20, 20, 0);
   rotatesX = createSlider(-20, 20, 0);
   rotatesY = createSlider(-20, 20, 0);
-  rotatesZ = createSlider(-20, 20, 0);*/
+  rotatesZ = createSlider(-20, 20, 0);
 }
 
 function draw() {
@@ -129,6 +130,7 @@ function draw() {
       rectY -= 5;
     }
   }
+  
   UDrectG(); //회색인 위랑 아래의 네모 생성
 
   canvas.getContext('webgl').disable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 먼저 생성된 개체가 가장 뒤에 위치하게 됨
