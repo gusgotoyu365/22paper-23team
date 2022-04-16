@@ -34,16 +34,19 @@ let spawn_fish = false;
 let rect_cover = false;
 let rect_uncover = false;
 
-let interval_fish;
+let i_fish;
+let i_fish_c;
 
 let terrain = [];
 let sea_terrain = [];
 
 function preload() {
-  wooden_boat = loadModel('wooden_boat.obj');
-  sit_human = loadModel('sitting_human.obj');
-  rod = loadModel('fishing_rod.obj');
-  fish = loadModel('fish.obj');
+  wooden_boat = loadModel('obj/wooden_boat.obj');
+  sit_human = loadModel('obj/sitting_human.obj');
+  rod = loadModel('obj/fishing_rod.obj');
+  fish = loadModel('obj/fish.obj');
+  i_fish = loadImage('image/fish_img.png');
+  i_fish_c = loadImage('image/fish_clicked.png');
 }
 
 function setup() {
@@ -127,6 +130,11 @@ function draw() {
     }
   }
   UDrectB();
+  
+  push();
+  image(i_fish_c,200,200);
+  pop();
+  
   canvas.getContext('webgl').enable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 다시 보이는대로 표시 됨
   slider();
   
