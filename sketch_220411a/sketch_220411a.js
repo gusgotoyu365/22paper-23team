@@ -139,9 +139,9 @@ function draw() {
   rotateX(PI/1);
   rotateY(PI/-3);
   rotateZ(PI/2);
-  scale(0.4,-0.4);
-  translate(0,2100,0);
-  image(i_fish,-270,-200);
+  scale(1,-1);
+  translate(-95,765);
+  image(i_fish,0,0);
   pop();
   
   canvas.getContext('webgl').enable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 다시 보이는대로 표시 됨
