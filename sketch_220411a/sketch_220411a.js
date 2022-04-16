@@ -47,7 +47,6 @@ let i_fish, i_fish_h, i_fish_c; //이미지 불러오기용
 let i_wb, i_wb_h, i_wb_c;
 let i_fac, i_fac_h, i_fac_c;
 let i_pet, i_pet_h, i_pet_c;
-let trash_t;
 
 let timer = 0;
 
@@ -78,7 +77,6 @@ function preload() {
   i_pet = loadImage('image/pet_img.png');
   i_pet_h = loadImage('image/pet_hovered.png');
   i_pet_c = loadImage('image/pet_clicked.png');
-  trash_t = loadImage('image/trash_texture.png');
 }
 
 function setup() {
