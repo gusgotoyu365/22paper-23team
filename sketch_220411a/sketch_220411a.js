@@ -27,6 +27,7 @@ const SB = -70; //Sea bottom
 
 let theta = 0.02;
 let al = 0;
+let tal = 0;
 
 let sb_speed = 0;
 let sea_speed = 0;
@@ -37,12 +38,16 @@ let wb_move = false;
 let spawn_fish = false;
 let rect_cover = false;
 let rect_uncover = false;
+let spawn_trash = false;
 let sea = true;
 let fac = false;
+let wb = true;
 
 let i_fish, i_fish_h, i_fish_c; //이미지 불러오기용
 let i_wb, i_wb_h, i_wb_c;
 let i_fac, i_fac_h, i_fac_c;
+let i_pet, i_pet_h, i_pet_c;
+let trash_t;
 
 let timer = 0;
 
@@ -58,7 +63,9 @@ function preload() {
   factory = loadModel('obj/factory.obj');
   smoke = loadModel('obj/smoke.obj');
   factory_b = loadModel('obj/factory_bottom.obj');
-  
+  trash = loadModel('obj/trash.obj');
+  fish_trap = loadModel('obj/fish_trap.obj');
+
   i_fish = loadImage('image/fish_img.png');
   i_fish_h = loadImage('image/fish_hovered.png');
   i_fish_c = loadImage('image/fish_clicked.png');
@@ -68,6 +75,10 @@ function preload() {
   i_fac = loadImage('image/factory_img.png');
   i_fac_h = loadImage('image/factory_hovered.png');
   i_fac_c = loadImage('image/factory_clicked.png');
+  i_pet = loadImage('image/pet_img.png');
+  i_pet_h = loadImage('image/pet_hovered.png');
+  i_pet_c = loadImage('image/pet_clicked.png');
+  trash_t = loadImage('image/trash_texture.png');
 }
 
 function setup() {
@@ -109,9 +120,7 @@ function setup() {
 function draw() {
   background(255);
   if (sea == true) {
-
     sea_speed += 0.01; //바다 움직임
-
     if (wb_move == true) { //wb_move가 참이 되면 나무배를 움직임
       wb_loc += 0.5;
       if (wb_loc >= 230) {
@@ -174,9 +183,16 @@ function draw() {
       fish_move+=0.001;
     }
   }
-
+  
   main_view(); //버튼을 누름에 따른 흐름
   UDrectB(); //검은색인 위와 아래의 네모 생성
+
+  if (spawn_trash == true) {
+    if (tal < 150) {
+      tal += 0.8;
+    }
+    trash_display();
+  }
 
   canvas.getContext('webgl').enable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 다시 보이는대로 표시 됨
 
@@ -326,11 +342,23 @@ function wb_display() { //보트 생성
   rotateX(PI/2);
   rotateY(PI/2);
   translate(wb_loc, 351, 250);
-  fill(204, 102, 0);
+  if (wb == true) {
+    fill(204, 102, 0);
+  } else {
+    noFill();
+  }
   model(wooden_boat);
-  fill(127);
+  if (wb == true) {
+    fill(127);
+  } else {
+    noFill();
+  }
   model(sit_human);
-  fill(102, 51, 0);
+  if (wb == true) {
+    fill(102, 51, 0);
+  } else {
+    noFill();
+  }
   model(rod);
   pop();
 }
@@ -379,6 +407,40 @@ function UDrectB() { //위, 아래의 검은색 네모 생성
   noStroke();
   fill(0);
   rect(0, 0, 1400, -1400);
+  pop();
+}
+
+function trash_display() {
+  push();
+  scale(0.2);
+  translate(-2800, -2000, -3300);
+  rotate(PI/1);
+  rotateX(PI/-1);
+  rotateY(PI/-5);
+  rotateZ(PI/2);
+  normalMaterial();
+  fill(130, 200, 253, tal);
+  model(pet);
+  translate(600, 200, 900);
+  rotateY(PI/3);
+  model(pet);
+  translate(-800, 1000, -600);
+  rotateY(PI/4);
+  model(pet);
+  translate(800, 200, 200);
+  rotateX(-PI/3);
+  rotate(PI/3);
+  scale(10);
+  model(fish_trap);
+  translate(50, -200, 0);
+  noFill();
+  rotate(PI/1);
+  rotateX(PI/3);
+  rotateY(PI/-1);
+  rotateZ(PI/-8);
+  scale(50);
+  fill(100, 100, 100, tal);
+  model(trash);
   pop();
 }
 
@@ -437,6 +499,24 @@ function main_view() { //흐름에 따른 생성 변경 & 버튼 생성 등
     } else {
       rect_cover = true;
     }
+  } else if (view == 10 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
+    image(i_pet_h, 0, 0);
+  } else if (view == 10) {
+    image(i_pet, 0, 0);
+  } else if (view == 11) {
+    image(i_pet_c, 0, 0);
+  } else if (view == 12) {
+    fac = false;
+    sea = true;
+    wb = false;
+    spawn_fish = false;
+    spawn_trash = true;
+    if (tal >= 150) {
+      rect_uncover = true;
+      view = 13;
+    } else {
+      rect_cover = true;
+    }
   }
   pop();
 }
@@ -468,6 +548,8 @@ function mousePressed() {
     view = 5;
   } else if (view == 7 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925 && rectY == 0) {
     view = 8;
+  } else if (view == 10 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925 && rectY == 0) {
+    view = 11;
   }
 }
 
@@ -478,5 +560,7 @@ function mouseReleased() {
     view = 6;
   } else if (view == 8 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
     view = 9;
+  } else if (view == 11 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
+    view = 12;
   }
 }
