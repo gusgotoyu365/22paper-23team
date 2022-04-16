@@ -2,6 +2,7 @@ let sliderGroup = [];
 let rotatesX, rotatesY, rotatesZ, rotates;
 
 let f = [];
+let s;
 
 let X;
 let Y;
@@ -25,6 +26,7 @@ let h = 1000;
 const SB = -70; //Sea bottom
 
 let theta = 0.02;
+let al = 0;
 
 let sb_speed = 0;
 let sea_speed = 0;
@@ -35,9 +37,12 @@ let wb_move = false;
 let spawn_fish = false;
 let rect_cover = false;
 let rect_uncover = false;
+let sea = true;
+let fac = false;
 
 let i_fish, i_fish_h, i_fish_c; //이미지 불러오기용
 let i_wb, i_wb_h, i_wb_c;
+let i_fac, i_fac_h, i_fac_c;
 
 let timer = 0;
 
@@ -51,12 +56,18 @@ function preload() {
   fish = loadModel('obj/fish.obj');
   pet = loadModel('obj/plastic_bottle.obj');
   factory = loadModel('obj/factory.obj');
+  smoke = loadModel('obj/smoke.obj');
+  factory_b = loadModel('obj/factory_bottom.obj');
+  
   i_fish = loadImage('image/fish_img.png');
   i_fish_h = loadImage('image/fish_hovered.png');
   i_fish_c = loadImage('image/fish_clicked.png');
   i_wb = loadImage('image/wb_img.png');
   i_wb_h = loadImage('image/wb_hovered.png');
   i_wb_c = loadImage('image/wb_clicked.png');
+  i_fac = loadImage('image/factory_img.png');
+  i_fac_h = loadImage('image/factory_hovered.png');
+  i_fac_c = loadImage('image/factory_clicked.png');
 }
 
 function setup() {
@@ -96,25 +107,47 @@ function setup() {
 }
 
 function draw() {
-  rotateX(PI/2);
   background(255);
-  
-  sea_speed += 0.01; //바다 움직임
+  if (sea == true) {
 
-  if (wb_move == true) { //wb_move가 참이 되면 나무배를 움직임
-    wb_loc += 0.5;
-    if (wb_loc >= 230) {
-      wb_move = false;
+    sea_speed += 0.01; //바다 움직임
+
+    if (wb_move == true) { //wb_move가 참이 되면 나무배를 움직임
+      wb_loc += 0.5;
+      if (wb_loc >= 230) {
+        wb_move = false;
+      }
     }
+
+    push();
+    rotateX(PI/2);
+    translate(0, 0, -100);
+    white_wallR();
+    sb_display(sb_speed, theta); //바다 아래쪽의 땅 생성
+    wb_display(); //나무 배 생성 (처음에는 숨어있다가 나오는 방식)
+    sea_display(sea_speed, theta); //바다의 물결 생성
+    pop();
   }
 
-  push();
-  translate(0, 0, -100);
-  white_wallR();
-  sb_display(sb_speed, theta); //바다 아래쪽의 땅 생성
-  wb_display(); //나무 배 생성 (처음에는 숨어있다가 나오는 방식)
-  sea_display(sea_speed, theta); //바다의 물결 생성
-  pop();
+  rotateX(PI/2);
+
+  if (fac == true) {
+    push();
+    normalMaterial();
+    rotate(PI/20);
+    rotateX(PI/2);
+    rotateY(PI/-15);
+    rotateZ(PI/-39);
+    fill(100);
+    scale(200);
+    model(factory);
+    al += 1;
+    fill(50, 50, 50, al);
+    model(smoke);
+    fill(150);
+    model(factory_b);
+    pop();
+  }
 
   if (rect_cover == true) { //위와 아래의 네모가 rectY에 따라 움직임
     if (rectY>=350) {
@@ -131,35 +164,26 @@ function draw() {
       rectY -= 5;
     }
   }
-  
-  UDrectG(); //회색인 위랑 아래의 네모 생성
 
+  UDrectG(); //회색인 위랑 아래의 네모 생성
   canvas.getContext('webgl').disable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 먼저 생성된 개체가 가장 뒤에 위치하게 됨
-  if (spawn_fish == true) {
+  
+  if (spawn_fish == true && sea == true) {
     for (let i=0; i<10; i++) {
       f[i].display();
       fish_move+=0.001;
     }
   }
-  
+
   main_view(); //버튼을 누름에 따른 흐름
   UDrectB(); //검은색인 위와 아래의 네모 생성
-  
-  push();
-  rotate(PI/20);
-  rotateX(PI/2);
-  rotateY(PI/-15);
-  rotateZ(PI/-39);
-  fill(100);
-  scale(200);
-  model(factory);
-  pop();
-  
+
   canvas.getContext('webgl').enable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 다시 보이는대로 표시 됨
+
   slider(); //테스트용 slider
 
-  //camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
-  //print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
+  camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
+  print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
   camera(1000, -781, 969, 0, 100, 0);
   print("rR: "+rR+" rX: "+rX+" rY: "+rY+" rZ: "+rZ);
   print(mouseX + " " + mouseY + " " + timer + " rectY: "+rectY);
@@ -254,7 +278,7 @@ function sea_display(yoff, theta) {
     }
     yoff += 0.2;
   }
-  
+
   //바다 옆쪽의 네모난 벽 생성
   push();
   noStroke();
@@ -364,14 +388,14 @@ function main_view() { //흐름에 따른 생성 변경 & 버튼 생성 등
   rotateX(PI/1);
   rotateY(PI/-3);
   rotateZ(PI/2);
-  scale(1,-1);
-  translate(-95,765+rectY);
+  scale(1, -1);
+  translate(-95, 765+rectY);
   if (view == 1 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
-    image(i_fish_h,0,0);
+    image(i_fish_h, 0, 0);
   } else if (view == 1) {
-    image(i_fish,0,0);
+    image(i_fish, 0, 0);
   } else if (view == 2) {
-    image(i_fish_c,0,0);
+    image(i_fish_c, 0, 0);
   } else if (view == 3) {
     spawn_fish = true;
     timer += 1;
@@ -383,12 +407,13 @@ function main_view() { //흐름에 따른 생성 변경 & 버튼 생성 등
       rect_cover = true;
     }
   } else if (view == 4 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
-      image(i_wb_h,0,0);
+    image(i_wb_h, 0, 0);
   } else if (view == 4) {
-    image(i_wb,0,0);
+    image(i_wb, 0, 0);
   } else if (view == 5) {
-    image(i_wb_c,0,0);
+    image(i_wb_c, 0, 0);
   } else if (view == 6) {
+    wb_move = true;
     timer += 1;
     if (timer >= 800) {
       rect_uncover = true;
@@ -397,7 +422,21 @@ function main_view() { //흐름에 따른 생성 변경 & 버튼 생성 등
     } else {
       rect_cover = true;
     }
-    wb_move = true;
+  } else if (view == 7 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
+    image(i_fac_h, 0, 0);
+  } else if (view == 7) {
+    image(i_fac, 0, 0);
+  } else if (view == 8) {
+    image(i_fac_c, 0, 0);
+  } else if (view == 9) {
+    sea = false;
+    fac = true;
+    if (al >= 255) {
+      rect_uncover = true;
+      view = 10;
+    } else {
+      rect_cover = true;
+    }
   }
   pop();
 }
@@ -423,10 +462,12 @@ class Fish {
 }
 
 function mousePressed() {
-  if (view == 1 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) { //마우스가 이미지 위에 위치하고 마우스가 눌리면 view를 2로
+  if (view == 1 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925 && rectY == 0) { //마우스가 이미지 위에 위치하고 마우스가 눌리면 view를 2로
     view = 2;
-  } else if (view == 4 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
+  } else if (view == 4 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925 && rectY == 0) {
     view = 5;
+  } else if (view == 7 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925 && rectY == 0) {
+    view = 8;
   }
 }
 
@@ -434,6 +475,8 @@ function mouseReleased() {
   if (view == 2 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) { //마우스가 이미지 위에 위치하고 마우스가 떼어지면 view를 3으로
     view = 3;
   } else if (view == 5 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
-    view = 6; 
+    view = 6;
+  } else if (view == 8 && mouseX >= 223 && mouseX <= 320 && mouseY >= 829 && mouseY <= 925) {
+    view = 9;
   }
 }
