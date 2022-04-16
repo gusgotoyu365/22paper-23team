@@ -34,8 +34,8 @@ let spawn_fish = false;
 let rect_cover = false;
 let rect_uncover = false;
 
-let i_fish;
-let i_fish_c;
+let i_fish; let i_fish_h; let i_fish_c; //이미지 불러오기용
+let b_fish; let b_fish_h; let b_fish_c; //이미지 버튼용
 
 let terrain = [];
 let sea_terrain = [];
@@ -66,6 +66,9 @@ function setup() {
   for (i=0;i<10;i++) {
     f[i] = new Fish();
   }
+  
+  b_fish = new Button(i_fish);
+  
   //카메라 시점용 slider
   for (let i = 0; i < 6; i++) {
     if (i === 2) {
@@ -132,7 +135,13 @@ function draw() {
   UDrectB();
   
   push();
-  image(i_fish_c,200,200);
+  rotate(PI/4.08);
+  rotateX(PI/1);
+  rotateY(PI/-3);
+  rotateZ(PI/2);
+  scale(0.4,-0.4);
+  translate(0,2100,0);
+  image(i_fish,-270,-200);
   pop();
   
   canvas.getContext('webgl').enable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 다시 보이는대로 표시 됨
@@ -353,6 +362,37 @@ class Fish {
     fill(this.filler);
     model(fish);
     pop();
+  }
+}
+
+class Button {
+  constructor(X, Y, Img) {
+    this.x = X;
+    this.y = Y;
+    this.img = Img;
+  }
+  
+  display() {
+    stroke(0);
+    
+    // tint the image on mouse hover
+    if (this.over()) {
+      tint(204, 0, 128);
+    } else {
+      noTint();
+    }
+    
+    //image(this.img, this.x, this.y);
+  }
+  
+  // over automatically matches the width & height of the image read from the file
+  // see this.img.width and this.img.height below
+  over() {
+    if (mouseX > this.x && mouseX < this.x + this.img.width && mouseY > this.y && mouseY < this.y + this.img.height) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
