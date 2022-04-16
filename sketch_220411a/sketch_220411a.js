@@ -1,4 +1,6 @@
 let sliderGroup = [];
+let rotatesX, rotatesY, rotatesZ, rotates;
+
 let f = [];
 
 let X;
@@ -9,7 +11,10 @@ let centerY;
 let centerZ;
 let hi = 20;
 
-colorarray = ['#FF3333', '#FFFF33', '#FF8000'];
+let rX, rY, rZ, rR;
+let rectY = 0;
+
+colorarray = ['#cc0000', '#FFFF33', '#FF8000'];
 
 let cols, rows;
 let scl = 20;
@@ -26,6 +31,8 @@ let fish_move = 0;
 
 let wb_move = false;
 let spawn_fish = false;
+let rect_cover = false;
+let rect_uncover = false;
 
 let interval_fish;
 
@@ -59,7 +66,7 @@ function setup() {
   //카메라 시점용 slider
   for (let i = 0; i < 6; i++) {
     if (i === 2) {
-      sliderGroup[i] = createSlider(-1000, 1000, 200);
+      sliderGroup[i] = createSlider(-1000, 1000, 0);
     } else {
       sliderGroup[i] = createSlider(-1000, 1000, 0);
     }
@@ -67,6 +74,11 @@ function setup() {
     sliderGroup[i].position(10, height + hi);
     sliderGroup[i].style('width', '80px');
   }
+  
+  rotates = createSlider(-20,20,0);
+  rotatesX = createSlider(-20,20,0);
+  rotatesY = createSlider(-20,20,0);
+  rotatesZ = createSlider(-20,20,0);
 }
 
 function draw() {
@@ -90,17 +102,22 @@ function draw() {
   sea_display(sea_speed, theta);
   pop();
   
-  push();
-  rotateZ(PI/4);
-  translate(0,0,1000);
-  noStroke();
-  fill(230);
-  box(800);
-  translate(0,0,-4500);
-  rotate(-PI/200);
-  rotateY(PI/10);
-  box(2300);
-  pop();
+  if (rect_cover == true) {
+    if (rectY>=350) {
+      rect_cover = false;
+    } else {
+      rectY += 10;
+    }
+  }
+  
+  if (rect_uncover == true) {
+    if (rectY<=0) {
+      rect_uncover = false;
+    } else {
+      rectY -= 10;
+    }
+  }
+  UDrectG(); //회색인 위랑 아래의 네모
   
   canvas.getContext('webgl').disable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 먼저 생성된 개체가 가장 뒤에 위치하게 됨
   if (spawn_fish == true) {
@@ -109,13 +126,15 @@ function draw() {
       fish_move+=0.001;
     }
   }
+  UDrectB();
   canvas.getContext('webgl').enable(canvas.getContext('webgl').DEPTH_TEST); //이 구문으로 인해 다시 보이는대로 표시 됨
   slider();
   
   //camera(X, Y, Z, centerX, centerY, centerZ, 0, 1, 0);
-  //print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
+  print("X: "+X+"  Y: "+Y+"  Z: "+Z+"\ncX: "+centerX+"  cY: "+centerY+"  cZ: "+centerZ);
   camera(1000, -781, 969, 0, 100, 0);
   //camera(625, 813, 1000, 281, -406, 125);
+  print("rR: "+rR+" rX: "+rX+" rY: "+rY+" rZ: "+rZ);
 }
 
 function slider() {
@@ -125,6 +144,10 @@ function slider() {
   centerX = sliderGroup[3].value();
   centerY = sliderGroup[4].value();
   centerZ = sliderGroup[5].value();
+  rR = rotates.value();
+  rX = rotatesX.value();
+  rY = rotatesY.value();
+  rZ = rotatesZ.value();
 }
 
 function sb_display(yoff, theta) {
@@ -267,6 +290,44 @@ function white_wallR() {
   pop();
 }
 
+function UDrectG() {
+  push(); //회색 네모
+  rotateZ(PI/4);
+  translate(0,0,1000+rectY/3);
+  noStroke();
+  fill(230);
+  box(800);
+  translate(0,0,-4500+(-rectY*2));
+  rotate(-PI/200);
+  rotateY(PI/10);
+  box(2300);
+  pop();
+}
+  
+function UDrectB() {
+  push(); //위쪽 검은색
+  rotate(PI/4.08);
+  rotateX(PI/1); //-8, 9, 5
+  rotateY(PI/-3);
+  rotateZ(PI/2); 
+  translate(-594,818-rectY,0); //약 Y가 350일때 가려짐
+  noStroke();
+  fill(0);
+  rect(0,0,1400,1400);
+  pop();
+  
+  push(); //아래쪽 검은색
+  rotate(PI/4.08);
+  rotateX(PI/1); //-8, 9, 5
+  rotateY(PI/-3);
+  rotateZ(PI/2); 
+  translate(-625,-1030+rectY,0); //약 Y가 350일때 가려짐
+  noStroke();
+  fill(0);
+  rect(0,0,1400,-1400);
+  pop();
+}
+
 class Fish {
   constructor() {
     this.x = random(100,150);
@@ -292,5 +353,9 @@ function keyPressed() {
     wb_move = true;
   } if (key == 's') {
     spawn_fish = true;
+  } if (key == 'a') {
+    rect_cover = true;
+  } if (key == 'd') {
+    rect_uncover = true;
   }
 }
